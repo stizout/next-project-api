@@ -11,17 +11,22 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @app.route('/generate', methods=['POST', 'OPTIONS'])
 @cross_origin()
 def generate():
-    print('hello')
-    return 'Success'
-    # data = request.get_json()
-    # print(data)
-    # try:
-    #     response = client.chat.completions.create(model='gpt-3.5-turbo', messages=[{'role': 'system', 'content': 'You are an assistant who helps a user seem more elegant. You will receive two inputs, who the user is talking to, and what they said. You are to help the user better talk to the specified person. '},{'role': 'user', 'content': 'i am ok'}])
-    #     print(response)
-    #     return jsonify({'message': response.choices[0].message.content}),200
-    # except Exception as e:
-    #     print(e)
-    #     return 'Error on server', 500
+    data = request.get_json()
+    print(data)
+    prompt = f"""
+You are an assistant who updates someones speech in order to sound better depending on the authority. 
+You will receive two inputs, the speech that needs to be updated and the authority of whom they are speaking to.
+You are to use no more than 10 words.
+speech: {data['speaker']}
+authority: {data['authority']}
+    """
+    try:
+        response = client.chat.completions.create(model='gpt-3.5-turbo', messages=[{'role': 'system', 'content': prompt},{'role': 'user', 'content': 'i am ok'}])
+        print(response)
+        return jsonify({'message': response.choices[0].message.content}),200
+    except Exception as e:
+        print(e)
+        return 'Error on server', 500
 
 if __name__ == '__main__':
     app.run(debug=True)
